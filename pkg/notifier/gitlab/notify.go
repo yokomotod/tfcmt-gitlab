@@ -31,6 +31,15 @@ func (g *NotifyService) Notify(param notifier.ParamExec) (int, error) { //nolint
 		}
 	}
 
+	logE := logrus.WithFields(logrus.Fields{
+		"program": "tfcmt",
+	})
+
+	if cfg.SkipNoChanges && result.HasNoChanges {
+		logE.Debug("skip no changes")
+		return result.ExitCode, nil
+	}
+
 	_, isPlan := parser.(*terraform.PlanParser)
 	if isPlan {
 		if cfg.MR.IsNumber() && cfg.ResultLabels.HasAnyLabelDefined() {
@@ -74,10 +83,6 @@ func (g *NotifyService) Notify(param notifier.ParamExec) (int, error) { //nolint
 			cfg.MR.Revision = lastRevision
 		}
 	}
-
-	logE := logrus.WithFields(logrus.Fields{
-		"program": "tfcmt",
-	})
 
 	if !isApply && cfg.Patch && cfg.MR.Number != 0 {
 		logE.Debug("try patching")

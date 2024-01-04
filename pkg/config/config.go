@@ -22,6 +22,7 @@ type Config struct {
 	GitLabToken      string     `yaml:"-"`
 	Complement       Complement `yaml:"ci"`
 	PlanPatch        bool       `yaml:"plan_patch"`
+	SkipNoChanges    bool       `yaml:"skip_no_changes"`
 }
 
 type CI struct {

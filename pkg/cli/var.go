@@ -51,5 +51,9 @@ func parseOpts(ctx *cli.Context, cfg *config.Config) error {
 	}
 	cfg.Vars = vm
 
+	if skipNoChanges := ctx.Bool("skip-no-changes"); skipNoChanges {
+		cfg.SkipNoChanges = skipNoChanges
+	}
+
 	return nil
 }

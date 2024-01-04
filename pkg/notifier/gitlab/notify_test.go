@@ -169,6 +169,28 @@ func TestNotifyNotify(t *testing.T) {
 			exitCode: 0,
 		},
 		{
+			name: "valid with no change and skip",
+			config: Config{
+				Token:     "token",
+				NameSpace: "namespace",
+				Project:   "project",
+				MR: MergeRequest{
+					Revision: "",
+					Number:   1,
+				},
+				Parser:             terraform.NewPlanParser(),
+				Template:           terraform.NewPlanTemplate(terraform.DefaultPlanTemplate),
+				ParseErrorTemplate: terraform.NewPlanParseErrorTemplate(terraform.DefaultPlanTemplate),
+				SkipNoChanges:      true,
+			},
+			paramExec: notifier.ParamExec{
+				Stdout:   "No changes. Infrastructure is up-to-date.",
+				ExitCode: 0,
+			},
+			ok:       true,
+			exitCode: 0,
+		},
+		{
 			name: "valid, contains destroy, but not to notify",
 			config: Config{
 				Token:     "token",
@@ -214,18 +236,20 @@ func TestNotifyNotify(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		client, err := NewClient(testCase.config)
-		if err != nil {
-			t.Fatal(err)
-		}
-		api := newFakeAPI()
-		client.API = &api
-		exitCode, err := client.Notify.Notify(testCase.paramExec)
-		if (err == nil) != testCase.ok {
-			t.Errorf("test case: %s, got error %q", testCase.name, err)
-		}
-		if exitCode != testCase.exitCode {
-			t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
-		}
+		t.Run(testCase.name, func(t *testing.T) {
+			client, err := NewClient(testCase.config)
+			if err != nil {
+				t.Fatal(err)
+			}
+			api := newFakeAPI()
+			client.API = &api
+			exitCode, err := client.Notify.Notify(testCase.paramExec)
+			if (err == nil) != testCase.ok {
+				t.Errorf("test case: %s, got error %q", testCase.name, err)
+			}
+			if exitCode != testCase.exitCode {
+				t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
+			}
+		})
 	}
 }

@@ -28,6 +28,7 @@ func New(flags *LDFlags) *cli.App {
 		&cli.IntFlag{Name: "mr", Usage: "merge request number"},
 		&cli.StringFlag{Name: "config", Usage: "config path"},
 		&cli.StringSliceFlag{Name: "var", Usage: "template variables. The format of value is '<name>:<value>'"},
+		&cli.BoolFlag{Name: "skip-no-changes", Usage: "do not post a comment if there are no changes"},
 	}
 	app.Commands = []*cli.Command{
 		{
